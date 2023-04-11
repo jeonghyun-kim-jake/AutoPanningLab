@@ -4,7 +4,7 @@
 
 ## Requirements
 ```shell
-$ pip install -t requirements.txt
+$ pip install -r requirements.txt --no-cache-dir
 ```
 
 ## Test
@@ -25,7 +25,9 @@ $ yolo task=detect mode=predict model=230407/best.pt conf=0.25 source="test_imag
 ```
 
 ## Results
-| Name             | content                        | etc                     |
-|------------------|--------------------------------|-------------------------|
-| [230407](230407) | - Epoch 2000<br/> - [yolo8n](https://github.com/ultralytics/ultralytics/blob/main/ultralytics/models/v8/yolov8.yaml) | ![img](230407/results/yolov8_2000epochs_2_jpg.rf.f5061bd2fb923bd35e11b90a2ed404f7.jpg) |
+- inference time : 4 core CPU Intel(R) Xeon(R) CPU @ 2.30GHz, 16GB RAM
+
+| Name             | content                        | inference time          | etc                     |
+|------------------|--------------------------------|-------------------------|-------------------------|
+| [230407](230407) | - Epoch 2000<br/> - [yolo8n](https://github.com/ultralytics/ultralytics/blob/main/ultralytics/models/v8/yolov8.yaml) | - 15.6ms | ![img](230407/results/yolov8_2000epochs_2_jpg.rf.f5061bd2fb923bd35e11b90a2ed404f7.jpg)|
 
