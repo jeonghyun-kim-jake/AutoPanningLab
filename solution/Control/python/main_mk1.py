@@ -6,23 +6,26 @@ from visions import checkParticle
 # hw configure
 
 from typing import Final
-SINGLE_STEP: Final = 15
+SINGLE_STEP: Final = 120
 
 
 stepMotor = StepMotor28BYJ()
 stepMotor.init()
 
 servoMotor = ServoMotorSG90()
-
+angle = [0, 20, 45, 65, 90, 110, 130, 150, 180]
 
 
 def moveBelt(moveDistance, direction=True):
     print("moveBelt ", moveDistance)
-    stepMotor.rotate(direction)
+    for k in range(0, moveDistance):
+        stepMotor.rotate(direction)
+        time.sleep(0.01)
     
-def pickup():
-    print("pickup ")
-    servoMotor.rotate(90)
+def pickup(location):
+    print("pickup ", location)   
+    servoMotor.rotate( angle[location%9] )
+    time.sleep(0.02)
     print("pickup done")
 
 
@@ -50,7 +53,7 @@ try:
             if isFound or cntTrial % 10 == 0 :
                 print("Found, pick up it! ", location)
                 # TODO: location -> check move belt half step or not.
-                pickup()
+                pickup(location)
                 moveBelt(location)
             else:
                 print("Not Found, pass it! ", location)
@@ -58,7 +61,6 @@ try:
             time.sleep(0.002) # 2ms
         except Exception as e:
             print("Error with ", e)
-
 
         cntTrial+=1
 finally:

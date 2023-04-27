@@ -1,5 +1,5 @@
 import tempfile
-
+import random
 
 # Create a temporary directory
 vision_folder = tempfile.TemporaryDirectory()
@@ -8,7 +8,20 @@ vision_folder = tempfile.TemporaryDirectory()
 vision_dir_path = vision_folder.name
 
 
-def readImageFromDevice(save_path, device_ix=0):
+
+## 
+test_detecting = 1
+
+def detectGold(img_path):
+    global test_detecting
+    test_detecting+=1
+    if test_detecting % 10 == 0:
+        return True, random.randint(30, 100)
+    
+    return False, 0
+    
+
+def readImageFromCamera(save_path, device_ix=0):
     import cv2
     # Open the first webcam device
     capture = cv2.VideoCapture(device_ix)
@@ -39,11 +52,13 @@ def checkParticle():
     # Get the path to the temporary file
     save_file_path = save_file.name
     
-    save_file_path = readImageFromDevice(save_file_path)
+    save_file_path = readImageFromCamera(save_file_path)
     
     if save_file_path is not None:
         print("img saved ", save_file_path)
         
+        detected, position = detectGold(save_file_path)
+        return detected, position
     
     
     return False, 0
