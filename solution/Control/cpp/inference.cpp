@@ -1,4 +1,6 @@
 #include "inference.h"
+
+#include "Logs.h"
 #include <iostream>
 
 Inference::Inference(const std::string &onnxModelPath, const cv::Size &modelInputShape, const std::string &classesTxtFile, const bool &runWithCuda)
@@ -14,20 +16,17 @@ Inference::Inference(const std::string &onnxModelPath, const cv::Size &modelInpu
 
 std::vector<Detection> Inference::runInference(const cv::Mat &input)
 {
-    std::cout << "runInference 1" << std::endl;
     cv::Mat modelInput = input;
     if (letterBoxForSquare && modelShape.width == modelShape.height)
         modelInput = formatToSquare(modelInput);
-    std::cout << "runInference 2" << std::endl;
     cv::Mat blob;
     cv::dnn::blobFromImage(modelInput, blob, 1.0/255.0, modelShape, cv::Scalar(), true, false);
     net.setInput(blob);
-    std::cout << "runInference 3" << std::endl;
 
     std::vector<cv::Mat> outputs;
     net.forward(outputs, net.getUnconnectedOutLayersNames());
 
-    int rows = outputs[0].size[1];
+    int rows = outputs[0].size[1];    
     int dimensions = outputs[0].size[2];
 
     bool yolov8 = false;
@@ -35,7 +34,6 @@ std::vector<Detection> Inference::runInference(const cv::Mat &input)
     // yolov8 has an output of shape (batchSize, 84,  8400) (Num classes + box[x,y,w,h])
     if (dimensions > rows) // Check if the shape[2] is more than shape[1] (yolov8)
     {        
-        std::cout << "runInference 4" << std::endl;
         yolov8 = true;
         rows = outputs[0].size[2];
         dimensions = outputs[0].size[1];
@@ -43,7 +41,6 @@ std::vector<Detection> Inference::runInference(const cv::Mat &input)
         outputs[0] = outputs[0].reshape(1, dimensions);
         cv::transpose(outputs[0], outputs[0]);
     }
-    std::cout << "runInference 5" << std::endl;
     float *data = (float *)outputs[0].data;
 
     float x_factor = modelInput.cols / modelShape.width;
@@ -164,17 +161,17 @@ void Inference::loadClassesFromFile()
 
 void Inference::loadOnnxNetwork()
 {
-    std::cout << "\nloadOnnxNetwork on "<< modelPath << std::endl;
+    LOGI("loadOnnxNetwork on %s", modelPath.c_str());
     net = cv::dnn::readNetFromONNX(modelPath);
     if (cudaEnabled)
     {
-        std::cout << "\nRunning on CUDA" << std::endl;
+        LOGI("Running on CUDA")
         net.setPreferableBackend(cv::dnn::DNN_BACKEND_CUDA);
         net.setPreferableTarget(cv::dnn::DNN_TARGET_CUDA);
     }
     else
     {
-        std::cout << "\nRunning on CPU" << std::endl;
+        LOGI("Running on CPU")
         net.setPreferableBackend(cv::dnn::DNN_BACKEND_OPENCV);
         net.setPreferableTarget(cv::dnn::DNN_TARGET_CPU);
     }

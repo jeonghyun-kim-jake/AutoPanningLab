@@ -3,10 +3,11 @@ cmake_minimum_required(VERSION 3.5)
 project(Yolov8CPPInference VERSION 0.1)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
+include_directories()
 
-# OpenCV
-find_package(OpenCV REQUIRED)
-include_directories(${OpenCV_INCLUDE_DIRS})
+# OpenCV : required version dependency
+find_package(OpenCV 4.7.0 REQUIRED)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 # !OpenCV
 
 set(PROJECT_SOURCES
