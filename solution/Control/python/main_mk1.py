@@ -1,33 +1,25 @@
 # engine
 from motors.step import StepMotor28BYJ
 from motors.servo import ServoMotorSG90
+
 from visions import checkParticle
+from mk1_picker import ParticlePicker
+from mk1_supplier import ParticleSupplier
 
 # hw configure
-
 from typing import Final
 SINGLE_STEP: Final = 120
 
-
-stepMotor = StepMotor28BYJ()
-stepMotor.init()
-
-servoMotor = ServoMotorSG90()
-angle = [0, 20, 45, 65, 90, 110, 130, 150, 180]
+#### 1. particle supplier
+stepMotor1 = StepMotor28BYJ(aint=11, bint=13, aint2=15, bint2=16)
+supplier = ParticleSupplier(stepMotor1)
 
 
-def moveBelt(moveDistance, direction=True):
-    print("moveBelt ", moveDistance)
-    for k in range(0, moveDistance):
-        stepMotor.rotate(direction)
-        time.sleep(0.01)
-    
-def pickup(location):
-    print("pickup ", location)   
-    servoMotor.rotate( angle[location%9] )
-    time.sleep(0.02)
-    print("pickup done")
-
+#### 2. particle picker
+stepMotor2 = StepMotor28BYJ(aint=3, bint=5, aint2=7, bint2=8)
+stepMotor2.init()
+servoMotor = ServoMotorSG90(servo_pin=12)
+picker = ParticlePicker(stepMotor2, stepMotor2)
 
 # testcode
 import time
@@ -44,27 +36,25 @@ print("args: ", args)
 loop_checker = lambda x : True
 if args.max >= 0 :
     loop_checker = lambda x : x < args.max
- 
+
+
+cntTrial = 0    
 try:
-    cntTrial = 0    
     while loop_checker(cntTrial):
         try:
-            isFound, location = checkParticle()
-            if isFound or cntTrial % 10 == 0 :
-                print("Found, pick up it! ", location)
-                # TODO: location -> check move belt half step or not.
-                pickup(location)
-                moveBelt(location)
-            else:
-                print("Not Found, pass it! ", location)
-                moveBelt(SINGLE_STEP)
-            time.sleep(0.002) # 2ms
+            if not picker.checkParticle():
+                print("Not Found, pass it! ")
+                supplier.supply();
+                
+            time.sleep(0.01) # 10ms
         except Exception as e:
             print("Error with ", e)
 
         cntTrial+=1
+except KeyboardInterrupt:
+    pass
 finally:
-    stepMotor.deinit()    
-
-print("DONE: ", cntTrial)
+    print("DONE: ", cntTrial)    
+    import RPi.GPIO as GPIO
+    GPIO.cleanup()
 ##
