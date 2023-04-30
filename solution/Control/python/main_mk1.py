@@ -1,8 +1,31 @@
+import os
+
+_self_file_path = os.path.realpath(__file__)
+_self_base_path = os.path.dirname(_self_file_path)
+
+# testcode
+import common
+import time
+import argparse
+parser = argparse.ArgumentParser(description='Execute mk1')
+parser.add_argument('--max', type=int, 
+                    default=-1,
+                    help='Max trial for testing')
+parser.add_argument('--debug', action='store_true', help='enable debug mode')
+
+args = parser.parse_args()
+debugPath = None
+if args.debug:
+    debugPath = common.createTempDir()
+    
+print("args: ", args)
+print("debugPath: ", debugPath)
+
+
 # engine
 from motors.step import StepMotor28BYJ
 from motors.servo import ServoMotorSG90
 
-from visions import checkParticle
 from mk1_picker import ParticlePicker
 from mk1_supplier import ParticleSupplier
 
@@ -19,19 +42,9 @@ supplier = ParticleSupplier(stepMotor1)
 stepMotor2 = StepMotor28BYJ(aint=3, bint=5, aint2=7, bint2=8)
 stepMotor2.init()
 servoMotor = ServoMotorSG90(servo_pin=12)
-picker = ParticlePicker(stepMotor2, stepMotor2)
+picker = ParticlePicker(stepMotor2, stepMotor2, debugPath=debugPath)
 
-# testcode
-import time
-import argparse
-parser = argparse.ArgumentParser(description='Execute mk1')
-parser.add_argument('--max', type=int, 
-                    default=-1,
-                    help='Max trial for testing')
 
-args = parser.parse_args()
-
-print("args: ", args)
 
 loop_checker = lambda x : True
 if args.max >= 0 :
