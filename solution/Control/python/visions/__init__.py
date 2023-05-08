@@ -41,7 +41,7 @@ def captureImageFromCamera(device_ix=0):
     # Release the webcam and destroy all windows
     capture.release()
     cv2.destroyAllWindows()
-    cv2.imwrite(save_path, cv2.cvtColor(frame, cv2.COLOR_RGB2RGBA))
+    cv2.imwrite(save_path, cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
     return save_path
 
 class GoldDetector():
@@ -53,7 +53,7 @@ class GoldDetector():
         return self.detectFromImagePath(captureImageFromCamera(camera_idx), confidence)
     
     def detectFromImagePath(self, img_path, confidence=0.5):
-        return self.detectFromImage(cv2.imread(img_path), confidence)
+        return self.detectFromImage(cv2.imread(img_path), confidence=confidence)
 
     def detectFromImage(self, original_image, confidence=0.5):
         [height, width, _] = original_image.shape
@@ -103,7 +103,14 @@ class GoldDetector():
                 'class_name': self.CLASSES[class_ids[index]],
                 'confidence': scores[index],
                 'box': box,
-                'scale': scale}
+                'scale': scale,
+                'scaled_box': [
+                    round(box[0] * scale),
+                    round(box[1] * scale),
+                    round((box[0] + box[2]) * scale),
+                    round((box[1] + box[3]) * scale)
+                ]
+            }
             detections.append(detection)
             
-        return detections
+        return detections, height, width

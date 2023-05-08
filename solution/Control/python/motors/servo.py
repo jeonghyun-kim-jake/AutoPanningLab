@@ -30,4 +30,4 @@ class ServoMotorSG90:
             angle = validateAngle(angle)
             duty = (angle / 180.0) * (self.dc_max - self.dc_min) + self.dc_min     
             self.pwm.ChangeDutyCycle (duty) 
-            time.sleep(0.02)
+            time.sleep(0.05)

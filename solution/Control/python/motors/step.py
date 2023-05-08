@@ -1,5 +1,6 @@
 import RPi.GPIO as GPIO
-import threading                                                                
+import threading
+import time
 from collections import deque
 
 
@@ -23,10 +24,11 @@ class StepMotor28BYJ:
     def rotate(self, angle, directionRight=True):
         angle = min(360, max(0, angle))
         cnt = int ( self.stepsPerRevolution * ( angle / 360 ))
+        print("StepMotor28BYJ:: rotate", cnt)
         for i in range(0, cnt):
             self.rotateOnce(directionRight)
         
-    def rotateOnce(self, directionRight=True):
+    def rotateOnce(self, directionRight=True, sleep=0.05):
         with self.lock:
             sig = self.sig
             GPIO.output(self.aint,sig[0])
@@ -34,6 +36,7 @@ class StepMotor28BYJ:
             GPIO.output(self.aint2,sig[2])
             GPIO.output(self.bint2,sig[3])
             sig.rotate(1 if directionRight else -1)
-            time.sleep(0.02)
+            time.sleep(sleep)
         
-   
+    def getStepsPerRevolution(self):
+        return self.stepsPerRevolution
